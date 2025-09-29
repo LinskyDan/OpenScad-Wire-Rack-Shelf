@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wire Shelf Insert Generator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+
+        @media (max-width: 900px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .section {
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #667eea;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            font-size: 14px;
+            font-weight: 500;
+            color: #555;
+            margin-bottom: 8px;
+        }
+
+        input[type="number"],
+        input[type="text"] {
+            padding: 10px 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        input[type="number"]:focus,
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+
+        .help-text {
+            font-size: 12px;
+            color: #888;
+            margin-top: 5px;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        button {
+            flex: 1;
+            padding: 15px 30px;
+            font-size: 16px;
+            font-weight: 600;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-secondary {
+            background: #f5f5f5;
+            color: #333;
+        }
+
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+
+        .info-box {
+            background: #f8f9ff;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 8px;
+        }
+
+        .info-box h3 {
+            font-size: 14px;
+            color: #667eea;
+            margin-bottom: 8px;
+        }
+
+        .info-box p {
+            font-size: 13px;
+            color: #666;
+            line-height: 1.6;
+        }
+
+        .calc-results {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .calc-item {
+            background: white;
+            padding: 12px;
+            border-radius: 8px;
+            border: 2px solid #e0e0e0;
+        }
+
+        .calc-label {
+            font-size: 12px;
+            color: #888;
+            margin-bottom: 5px;
+        }
+
+        .calc-value {
+            font-size: 18px;
+            font-weight: 600;
+            color: #667eea;
+        }
+
+        .preview-area {
+            background: #f5f5f5;
+            border-radius: 12px;
+            padding: 20px;
+            min-height: 400px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .preview-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .preview-controls button {
+            flex: 0 0 auto;
+            padding: 8px 16px;
+            font-size: 14px;
+        }
+
+        .preview-canvas {
+            flex: 1;
+            background: white;
+            border-radius: 8px;
+            overflow: auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 350px;
+        }
+
+        #svgPreview {
+            max-width: 100%;
+            max-height: 100%;
+        }
+
+        .piece-selector {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .piece-selector select {
+            padding: 8px 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            background: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🛠️ Wire Shelf Insert Generator</h1>
+            <p>Generate SVG cut files for each piece of your modular shelf insert</p>
+        </div>
+
+        <div class="content">
+            <div class="main-grid">
+                <!-- Left Column: Parameters -->
+                <div>
+                    <!-- Shelf Dimensions -->
+                    <div class="section">
+                        <div class="section-title">Shelf Dimensions</div>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="width">Width (inches)</label>
+                                <input type="number" id="width" value="22.75" step="0.125">
+                            </div>
+                            <div class="form-group">
+                                <label for="depth">Depth (inches)</label>
+                                <input type="number" id="depth" value="17.875" step="0.125">
+                            </div>
+                            <div class="form-group">
+                                <label for="buildVolume">Build Volume (mm)</label>
+                                <input type="number" id="buildVolume" value="256" step="1">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Corner Cuts -->
+                    <div class="section">
+                        <div class="section-title">Corner Posts</div>
+                        <div class="form-group">
+                            <label for="cornerCut">Corner Cut Distance (inches)</label>
+                            <input type="number" id="cornerCut" value="1.5" step="0.125">
+                            <span class="help-text">Distance to cut into each corner</span>
+                        </div>
+                    </div>
+
+                    <!-- Perimeter -->
+                    <div class="section">
+                        <div class="section-title">Raised Perimeter</div>
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="enablePerimeter" checked>
+                            <label for="enablePerimeter">Enable raised perimeter</label>
+                        </div>
+                        <div class="form-group" style="margin-top: 15px;">
+                            <label for="perimeterHeight">Perimeter Height (mm)</label>
+                            <input type="number" id="perimeterHeight" value="10" step="1">
+                        </div>
+                    </div>
+
+                    <!-- Calculated Info -->
+                    <div class="info-box">
+                        <h3>📊 Calculated Values</h3>
+                        <div class="calc-results">
+                            <div class="calc-item">
+                                <div class="calc-label">Total Pieces</div>
+                                <div class="calc-value" id="totalPieces">-</div>
+                            </div>
+                            <div class="calc-item">
+                                <div class="calc-label">Grid Layout</div>
+                                <div class="calc-value" id="gridLayout">-</div>
+                            </div>
+                            <div class="calc-item">
+                                <div class="calc-label">Piece Size</div>
+                                <div class="calc-value" id="pieceSize">-</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Buttons -->
+                    <div class="button-group">
+                        <button class="btn-secondary" onclick="resetDefaults()">Reset</button>
+                        <button class="btn-primary" onclick="downloadAllSVGs()">Download All SVGs</button>
+                    </div>
+                </div>
+
+                <!-- Right Column: Preview -->
+                <div>
+                    <div class="section">
+                        <div class="section-title">Preview</div>
+                        <div class="preview-area">
+                            <div class="preview-controls">
+                                <div class="piece-selector">
+                                    <label for="pieceSelect">View Piece:</label>
+                                    <select id="pieceSelect" onchange="updatePreview()">
+                                        <option value="0">Piece 1</option>
+                                    </select>
+                                </div>
+                                <button class="btn-secondary" onclick="downloadCurrentSVG()">Download This Piece</button>
+                            </div>
+                            <div class="preview-canvas">
+                                <svg id="svgPreview" width="400" height="400"></svg>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentParams = {};
+        let pieces = [];
+
+        function calculatePieces() {
+            const width = parseFloat(document.getElementById('width').value) * 25.4;
+            const depth = parseFloat(document.getElementById('depth').value) * 25.4;
+            const buildVolume = parseFloat(document.getElementById('buildVolume').value);
+            const cornerCut = parseFloat(document.getElementById('cornerCut').value) * 25.4;
+            const enablePerimeter = document.getElementById('enablePerimeter').checked;
+            const enableGridfinity = document.getElementById('enableGridfinity').checked;
+            const perimeterHeight = parseFloat(document.getElementById('perimeterHeight').value);
+            
+            // Base thickness: 1/16" (1.5875mm) without gridfinity
+            // With gridfinity, use standard gridfinity base height of 5mm
+            const baseThickness = enableGridfinity ? 5 : 1.5875;
+            
+            const piecesX = Math.ceil(width / buildVolume);
+            const piecesY = Math.ceil(depth / buildVolume);
+            const total = piecesX * piecesY;
+            
+            const pieceOffset = 0.15;
+            const pieceWidth = (width - (piecesX - 1) * pieceOffset) / piecesX;
+            const pieceDepth = (depth - (piecesY - 1) * pieceOffset) / piecesY;
+
+            currentParams = {
+                width, depth, buildVolume, cornerCut, enablePerimeter, enableGridfinity,
+                piecesX, piecesY, total, pieceOffset, pieceWidth, pieceDepth, 
+                baseThickness, perimeterHeight
+            };
+
+            // Generate piece data
+            pieces = [];
+            for (let y = 0; y < piecesY; y++) {
+                for (let x = 0; x < piecesX; x++) {
+                    pieces.push({
+                        x, y,
+                        hasLeftEdge: x === 0,
+                        hasRightEdge: x === piecesX - 1,
+                        hasTopEdge: y === piecesY - 1,
+                        hasBottomEdge: y === 0,
+                        hasBottomLeftCorner: x === 0 && y === 0,
+                        hasBottomRightCorner: x === piecesX - 1 && y === 0,
+                        hasTopLeftCorner: x === 0 && y === piecesY - 1,
+                        hasTopRightCorner: x === piecesX - 1 && y === piecesY - 1
+                    });
+                }
+            }
+
+            return { piecesX, piecesY, total, pieceWidth, pieceDepth };
+        }
+
+        function updateCalculations() {
+            const calc = calculatePieces();
+            
+            document.getElementById('totalPieces').textContent = calc.total;
+            document.getElementById('gridLayout').textContent = `${calc.piecesX}×${calc.piecesY}`;
+            document.getElementById('pieceSize').textContent = `${calc.pieceWidth.toFixed(1)}×${calc.pieceDepth.toFixed(1)}mm`;
+            
+            // Show base thickness info
+            const thicknessInfo = currentParams.enableGridfinity ? '5mm (Gridfinity)' : '1.59mm (1/16")';
+            if (!document.getElementById('baseThicknessInfo')) {
+                const thicknessDiv = document.createElement('div');
+                thicknessDiv.id = 'baseThicknessInfo';
+                thicknessDiv.className = 'calc-item';
+                thicknessDiv.innerHTML = `
+                    <div class="calc-label">Base Thickness</div>
+                    <div class="calc-value" id="baseThicknessValue">${thicknessInfo}</div>
+                `;
+                document.querySelector('.calc-results').appendChild(thicknessDiv);
+            } else {
+                document.getElementById('baseThicknessValue').textContent = thicknessInfo;
+            }
+            
+            // Update piece selector
+            const select = document.getElementById('pieceSelect');
+            select.innerHTML = '';
+            for (let i = 0; i < calc.total; i++) {
+                const option = document.createElement('option');
+                option.value = i;
+                option.textContent = `Piece ${i + 1}`;
+                select.appendChild(option);
+            }
+            
+            updatePreview();
+        }
+
+        function generatePieceSVG(pieceIndex) {
+            const piece = pieces[pieceIndex];
+            const { pieceWidth, pieceDepth, cornerCut, enablePerimeter } = currentParams;
+            
+            const margin = 10;
+            const scale = 1.5;
+            const w = pieceWidth * scale;
+            const h = pieceDepth * scale;
+            const viewWidth = w + margin * 2;
+            const viewHeight = h + margin * 2;
+
+            let pathData = '';
+            
+            // Start from bottom-left
+            let x = margin;
+            let y = margin + h;
+
+            // Bottom edge
+            if (piece.hasBottomLeftCorner) {
+                // Start after the corner cut
+                x += cornerCut * scale;
+                pathData += `M ${x} ${y} `;
+            } else {
+                pathData += `M ${x} ${y} `;
+            }
+
+            if (piece.hasBottomRightCorner) {
+                // Line to before corner cut
+                pathData += `L ${margin + w - cornerCut * scale} ${y} `;
+                // Diagonal cut
+                pathData += `L ${margin + w} ${y - cornerCut * scale} `;
+            } else {
+                pathData += `L ${margin + w} ${y} `;
+            }
+
+            // Right edge
+            if (piece.hasTopRightCorner) {
+                pathData += `L ${margin + w} ${margin + cornerCut * scale} `;
+                pathData += `L ${margin + w - cornerCut * scale} ${margin} `;
+            } else {
+                pathData += `L ${margin + w} ${margin} `;
+            }
+
+            // Top edge
+            if (piece.hasTopLeftCorner) {
+                pathData += `L ${margin + cornerCut * scale} ${margin} `;
+                pathData += `L ${margin} ${margin + cornerCut * scale} `;
+            } else {
+                pathData += `L ${margin} ${margin} `;
+            }
+
+            // Left edge
+            if (piece.hasBottomLeftCorner) {
+                pathData += `L ${margin} ${y - cornerCut * scale} `;
+                pathData += `L ${margin + cornerCut * scale} ${y} `;
+            } else {
+                pathData += `L ${margin} ${y} `;
+            }
+
+            pathData += 'Z';
+
+            // Add perimeter if enabled
+            let perimeterPath = '';
+            if (enablePerimeter) {
+                const pw = 5 * scale; // perimeter width
+                
+                if (piece.hasLeftEdge) {
+                    const startY = piece.hasBottomLeftCorner ? margin + h - cornerCut * scale : margin + h;
+                    const endY = piece.hasTopLeftCorner ? margin + cornerCut * scale : margin;
+                    perimeterPath += `M ${margin + pw} ${startY} L ${margin + pw} ${endY} `;
+                }
+                
+                if (piece.hasRightEdge) {
+                    const startY = piece.hasTopRightCorner ? margin + cornerCut * scale : margin;
+                    const endY = piece.hasBottomRightCorner ? margin + h - cornerCut * scale : margin + h;
+                    perimeterPath += `M ${margin + w - pw} ${startY} L ${margin + w - pw} ${endY} `;
+                }
+                
+                if (piece.hasBottomEdge) {
+                    const startX = piece.hasBottomLeftCorner ? margin + cornerCut * scale : margin;
+                    const endX = piece.hasBottomRightCorner ? margin + w - cornerCut * scale : margin + w;
+                    perimeterPath += `M ${startX} ${margin + h - pw} L ${endX} ${margin + h - pw} `;
+                }
+                
+                if (piece.hasTopEdge) {
+                    const startX = piece.hasTopLeftCorner ? margin + cornerCut * scale : margin;
+                    const endX = piece.hasTopRightCorner ? margin + w - cornerCut * scale : margin + w;
+                    perimeterPath += `M ${startX} ${margin + pw} L ${endX} ${margin + pw} `;
+                }
+            }
+
+            return `<svg xmlns="http://www.w3.org/2000/svg" width="${viewWidth}" height="${viewHeight}" viewBox="0 0 ${viewWidth} ${viewHeight}">
+                <rect width="100%" height="100%" fill="white"/>
+                <path d="${pathData}" fill="none" stroke="black" stroke-width="2"/>
+                ${perimeterPath ? `<path d="${perimeterPath}" fill="none" stroke="blue" stroke-width="1" stroke-dasharray="3,3"/>` : ''}
+                <text x="${viewWidth/2}" y="${viewHeight - 5}" text-anchor="middle" font-size="12" fill="#666">Piece ${pieceIndex + 1} (${piece.x},${piece.y})</text>
+            </svg>`;
+        }
+
+        function updatePreview() {
+            const pieceIndex = parseInt(document.getElementById('pieceSelect').value);
+            const svgContent = generatePieceSVG(pieceIndex);
+            document.getElementById('svgPreview').outerHTML = svgContent;
+        }
+
+        function downloadSVG(svgContent, filename) {
+            const blob = new Blob([svgContent], { type: 'image/svg+xml' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function downloadCurrentSVG() {
+            const pieceIndex = parseInt(document.getElementById('pieceSelect').value);
+            const svgContent = generatePieceSVG(pieceIndex);
+            downloadSVG(svgContent, `shelf_piece_${pieceIndex + 1}.svg`);
+        }
+
+        function downloadAllSVGs() {
+            pieces.forEach((piece, index) => {
+                setTimeout(() => {
+                    const svgContent = generatePieceSVG(index);
+                    downloadSVG(svgContent, `shelf_piece_${index + 1}.svg`);
+                }, index * 200);
+            });
+        }
+
+        function resetDefaults() {
+            document.getElementById('width').value = 22.75;
+            document.getElementById('depth').value = 17.875;
+            document.getElementById('buildVolume').value = 256;
+            document.getElementById('cornerCut').value = 1.5;
+            document.getElementById('enablePerimeter').checked = true;
+            document.getElementById('perimeterHeight').value = 10;
+            document.getElementById('enableGridfinity').checked = false;
+            updateCalculations();
+        }
+
+        // Update calculations on input change
+        document.querySelectorAll('input').forEach(input => {
+            input.addEventListener('input', updateCalculations);
+            input.addEventListener('change', updateCalculations);
+        });
+
+        // Initial update
+        updateCalculations();
+    </script>
+</body>
+</html>
